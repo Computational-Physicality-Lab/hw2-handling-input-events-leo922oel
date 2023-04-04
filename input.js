@@ -262,12 +262,14 @@ var Render = {
                     if (this.store.isDblclick) {
                         // this.target.preventDefault();
                         document.div = this.store.div;
-                        // console.log(document.div);
-                        document.offset = {x: this.store.offsetX, y:this.store.offsetY};
-                        document.addEventListener("touchmove", this.TouchHandler);
-                        document.addEventListener("touchend", this.TouchHandler);
-                    // } else {
-                        // document.removeEventListener("mousemove", this.MouseHandler);
+                        if (document.div !== workspace) {
+                            // console.log(document.div);
+                            document.offset = {x: this.store.offsetX, y:this.store.offsetY};
+                            document.addEventListener("touchmove", this.TouchHandler);
+                            document.addEventListener("touchend", this.TouchHandler);
+                        // } else {
+                            // document.removeEventListener("mousemove", this.MouseHandler);
+                        }
                     }
                 }
                 if (this.store.state === 'touchstart') {
@@ -299,6 +301,7 @@ var Render = {
         if (e.type === "touchmove") {
             if (e.touches.length === 2) {
                 // e.preventDefault();
+                console.log("scale");
                 vX = e.touches[1].clientX - e.touches[0].clientX;
                 vY = e.touches[1].clientY - e.touches[0].clientY;
                 if (this.store.preVX !== null) {
