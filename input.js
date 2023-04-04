@@ -310,6 +310,7 @@ var Render = {
                     e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.preVX, this.store.preVY);
                 }
                 document.div.style.width *= e.scale; 
+                console.log(document.div.style.width);
 
             }
             console.log("moving");
