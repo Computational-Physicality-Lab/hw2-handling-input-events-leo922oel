@@ -15,10 +15,8 @@ var isEsc = false;
 function Store() {
     this.state = 'idle';
     this.target = 'workspace';
-    // this.e = null;
     this.div = null;
     this.isDblclick = false;
-    // this.isDrag = false;
     this.handlerTimer = null;
     this.offsetX = null;
     this.offsetY = null;
@@ -47,14 +45,14 @@ Store.prototype = {
         switch (e.type) {
             case 'keydown':
                 if (e.code === "Escape") {
-                console.log("esc");
-                this.state = "idle";
-                if (!this.isDblclick) this.pretarget = this.target;
-                // this.target = 'workspace';
-                this.isDblclick = false;
-                this.handlerTimer = null;
-                isDrag = false;
-                isEsc = true;
+                    console.log("esc");
+                    this.state = "idle";
+                    if (!this.isDblclick) this.pretarget = this.target;
+                    // this.target = 'workspace';
+                    this.isDblclick = false;
+                    this.handlerTimer = null;
+                    isDrag = false;
+                    isEsc = true;
                 }
                 break;
                 
@@ -62,21 +60,7 @@ Store.prototype = {
                 this.state = "mousedown";
                 console.log(this.state);
                 e.preventDefault();
-                this.setTarget(e, 'target0', e.offsetX, e.offsetY);
-                // switch (e.target) {
-                    // case target[0]:
-                        // this.setTarget(e, 'target0', e.offsetX, e.offsetY);
-                        // break;
-                    // case target[1]:
-                        // this.setTarget(e, 'target1', e.offsetX, e.offsetY);
-                        // break;
-                    // case target[2]:
-                        // this.setTarget(e, 'target2', e.offsetX, e.offsetY);
-                        // break;
-                    // case workspace:
-                        // this.setTarget(e, 'workspace', null, null);
-                        // break;
-                // }
+                this.setTarget(e, e.offsetX, e.offsetY);
                 isDrag = false;
                 this.handlerTimer = setTimeout(this.setDrag, 200);
                 break;
@@ -99,20 +83,7 @@ Store.prototype = {
                     break;
                 }
                 this.state = 'click';
-                switch (e.target) {
-                    case target[0]:
-                        this.target = 'target0';
-                        break;
-                    case target[1]:
-                        this.target = 'target1';
-                        break;
-                    case target[2]:
-                        this.target = 'target2';
-                        break;
-                    case workspace:
-                        this.target = 'workspace';
-                        break;
-                }
+                this.target = e.target;
                 console.log(this.state);
                 if (this.isDblclick) this.isDblclick = false;
                 e.stopPropagation();
@@ -134,10 +105,24 @@ Store.prototype = {
                 }
                 e.stopPropagation();
                 break;
+            case 'touchstart':
+                this.state = "touchstart";
+                console.log(this.state);
+                e.preventDefault();
+                this.setTarget(e, e.offsetX, e.offsetY);
+                isDrag = false;
+                this.handlerTimer = setTimeout(this.setDrag, 200);
+                break;
+            case 'touchmove':
+                break;
+            case 'touchstend':
+                break;
+            case 'touchcancel':
+                break;
         }
         window.dispatchEvent(new Event('render_view'));
     },
-    setTarget: function setTarget(e, name, offsetX, offsetY, left, top) {
+    setTarget: function setTarget(e, offsetX, offsetY) {
         // this.target = name;
         console.log(this.target);
         this.div = e.target;
@@ -175,23 +160,12 @@ var Render = {
                 }
                 for (let id=0; id < target.length; id++) {
                     target[id].style.backgroundColor = 'red';
+                    if (target[id] == this.store.target) {
+                        target[id].style.backgroundColor = 'blue';
+                        this.target = target[id];
+                    }
                 }
-                switch (this.store.target) {
-                    case 'target0':
-                        target[0].style.backgroundColor = 'blue';
-                        this.target = target[0];
-                        break;
-                    case 'target1':
-                        target[1].style.backgroundColor = 'blue';
-                        this.target = target[1];
-                        break;
-                    case 'target2':
-                        target[2].style.backgroundColor = 'blue';
-                        this.target = target[2];
-                        break;
-                    case 'workspace':
-                        break;
-                }
+
                 if (this.store.isDblclick) {
                     // this.target.preventDefault();
                     document.div = this.store.div;
@@ -233,30 +207,3 @@ var Render = {
 var DataStore = new Store();
 DataStore.init();
 Render.init(DataStore);
-
-for (var id=0; id < target.length; id++) {
-    // window.setTimeout(target[id].addEventListener("dblclick", doubleclick), 1000);
-    // target[id].addEventListener("click", SelectObj);
-    // target[id].addEventListener("dblclick", doubleclick);
-    // target[id].addEventListener("mousedown", MouseHandler);
-}
-
-let clicktimer, mousetimer;
-
-function MouseHandler(e) {
-    if (e.type === "mousedown") {
-        e.preventDefault();
-        document.div = this;
-        console.log(this);
-        document.offset = {x: e.offsetX, y:e.offsetY};
-        document.addEventListener("mousemove", MouseHandler);
-        document.addEventListener("mouseup", MouseHandler);
-    } else if (e.type === "mousemove") {
-        document.div.style.left = e.clientX - document.offset.x + "px";
-        document.div.style.top = e.clientY - document.offset.y + "px";
-
-    } else if (e.type === "mouseup") {
-        document.removeEventListener("mousemove", MouseHandler);
-        document.removeEventListener("mouseup", MouseHandler);
-    }
-}
