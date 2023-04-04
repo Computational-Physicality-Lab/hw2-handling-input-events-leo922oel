@@ -308,8 +308,8 @@ var Render = {
                 vY = e.touches[1].clientY - e.touches[0].clientY;
                 if (this.store.preVX !== null) {
                     e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.preVX, this.store.preVY);
-                    
                 }
+                document.div.style.width *= e.scale; 
 
             }
             console.log("moving");
