@@ -22,23 +22,32 @@ function Store() {
     this.offsetY = null;
     this.left = null;
     this.top = null;
+
+// touch event
+    this.touchCount = 0;
 }
 
 Store.prototype = {
     init: function store_init(element) {
-        // const workspace = document.querySelector("#workspace");
-        // var target = document.querySelectorAll(".target");
-        window.addEventListener('keydown', this);
-        workspace.addEventListener('mousedown', this);
-        workspace.addEventListener('mouseup', this);
-        workspace.addEventListener('click', this);
-        workspace.addEventListener('dblclick', this);
+        window.addEventListener('keydown', this, false);
+        workspace.addEventListener('mousedown', this, false);
+        workspace.addEventListener('mouseup', this, false);
+        workspace.addEventListener('click', this, false);
+        workspace.addEventListener('dblclick', this, false);
+        workspace.addEventListener('touchstart', this, false);
+        // workspace.addEventListener('touchmove', this, false);
+        workspace.addEventListener('touchend', this, false);
+        workspace.addEventListener('touchcancel', this, false);
         for (let id=0; id < target.length; id++) {
-            target[id].addEventListener('mousedown', this);
+            target[id].addEventListener('mousedown', this, false);
             // target[id].addEventListener('mousemove', this);
-            target[id].addEventListener('mouseup', this);
-            target[id].addEventListener('click', this);
-            target[id].addEventListener('dblclick', this);
+            target[id].addEventListener('mouseup', this, false);
+            target[id].addEventListener('click', this, false);
+            target[id].addEventListener('dblclick', this, false);
+            target[id].addEventListener('touchstart', this, false);
+            target[id].addEventListener('touchend', this, false);
+            target[id].addEventListener('touchcancel', this, false);
+
         }
     },
     handleEvent: function store_handleEvent(e) {
@@ -64,12 +73,14 @@ Store.prototype = {
                 isDrag = false;
                 this.handlerTimer = setTimeout(this.setDrag, 200);
                 break;
+
             case 'mousemove':
                 this.state = "moving";
                 console.log(this.state);
                 document.div.style.left = e.clientX - document.offset.x + "px";
                 document.div.style.top = e.clientY - document.offset.y + "px";
                 break;
+            
             case 'click':
                 if (e.detail == 2) break;
                 if (isDrag) {
@@ -88,12 +99,14 @@ Store.prototype = {
                 if (this.isDblclick) this.isDblclick = false;
                 e.stopPropagation();
                 break;
+
             case 'dblclick':
                 this.state = 'dblclick';
                 console.log(this.state);
                 if (this.div !== null && this.div !== workspace) this.isDblclick = true;
                 e.stopPropagation();
                 break;
+
             case 'mouseup':
                 this.state = 'idle';
                 if (!isDrag) {
@@ -105,34 +118,66 @@ Store.prototype = {
                 }
                 e.stopPropagation();
                 break;
+
             case 'touchstart':
                 this.state = "touchstart";
                 console.log(this.state);
-                e.preventDefault();
-                this.setTarget(e, e.offsetX, e.offsetY);
+                // e.preventDefault();
+                this.TouchsetTarget(e, e.offsetX, e.offsetY);
                 isDrag = false;
-                this.handlerTimer = setTimeout(this.setDrag, 200);
+                this.handlerTimer = setTimeout(this.setDrag, 100);
+                e.stopPropagation();
                 break;
+
             case 'touchmove':
+                this.state = "touchmove";
+                console.log(isDrag);
+                e.stopPropagation();
                 break;
-            case 'touchstend':
+
+            case 'touchend':
+                this.state = "touchend";
+                console.log(this.state);
+                this.touchCount++;
+                console.log(this.touchCount);
+                // if (this.touchCount == 1) 
+                e.stopPropagation();
                 break;
+
             case 'touchcancel':
+                console.log("touchcancel");
+                this.state = "idle";
+                if (!this.isDblclick) this.pretarget = this.target;
+                // this.target = 'workspace';
+                this.isDblclick = false;
+                this.handlerTimer = null;
+                isDrag = false;
+                isEsc = true;
                 break;
         }
         window.dispatchEvent(new Event('render_view'));
     },
     setTarget: function setTarget(e, offsetX, offsetY) {
         // this.target = name;
-        console.log(this.target);
+        // console.log(this.target);
         this.div = e.target;
         // document.offset = {x: e.offsetX, y:e.offsetY};
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         this.left = e.target.style.left;
         this.top = e.target.style.top;
+        e.stopPropagation();
+    },
+    TouchsetTarget: function TouchsetTarget(e) {
+        // this.target = name;
+        // console.log(this.target);
+        this.div = e.touches[0].target;
+        // document.offset = {x: e.offsetX, y:e.offsetY};
+        this.left = e.touches[0].target.style.left;
+        this.top = e.touches[0].target.style.top;
+        this.offsetX = e.touches[0].clientX - this.left;
+        this.offsetY = e.touches[0].clientY - this.top;
         console.log(this.offsetX);
-        console.log(this.offsetY);
         e.stopPropagation();
     },
     setDrag: function setDrag() {
@@ -169,7 +214,7 @@ var Render = {
                 if (this.store.isDblclick) {
                     // this.target.preventDefault();
                     document.div = this.store.div;
-                    console.log(document.div);
+                    // console.log(document.div);
                     document.offset = {x: this.store.offsetX, y:this.store.offsetY};
                     document.addEventListener("mousemove", this.MouseHandler);
                     document.addEventListener("click", this.MouseHandler);
@@ -180,10 +225,20 @@ var Render = {
                 if (this.store.state === 'mousedown') {
                     document.div = this.store.div;
                     if (document.div !== workspace) {
-                        console.log(document.div);
+                        // console.log(document.div);
                         document.offset = {x: this.store.offsetX, y:this.store.offsetY};
                         document.addEventListener("mousemove", this.MouseHandler);
                         document.addEventListener("mouseup", this.MouseHandler);
+                    }
+
+                }
+                if (this.store.state === 'touchstart') {
+                    document.div = this.store.div;
+                    if (document.div !== workspace) {
+                        // console.log(document.div);
+                        document.offset = {x: this.store.offsetX, y:this.store.offsetY};
+                        document.addEventListener("touchmove", this.TouchHandler);
+                        document.addEventListener("touchend", this.TouchHandler);
                     }
 
                 }
@@ -194,6 +249,19 @@ var Render = {
             console.log("moving");
             document.div.style.left = e.clientX - document.offset.x + "px";
             document.div.style.top = e.clientY - document.offset.y + "px";
+        // } else if (e.type === "mouseup") {
+            // console.log("enter this");
+            // console.log(this.store.offsetX);
+            // console.log(this.store.offsetY);
+            // document.removeEventListener("mousemove", this.MouseHandler);
+            // document.removeEventListener("mouseup", this.MouseHandler);
+        }
+    },
+    TouchHandler: function TouchHandler(e) {
+        if (e.type === "touchmove") {
+            console.log("moving");
+            document.div.style.left = e.touches[0].clientX - document.offset.x + "px";
+            document.div.style.top = e.touches[0].clientY - document.offset.y + "px";
         // } else if (e.type === "mouseup") {
             // console.log("enter this");
             // console.log(this.store.offsetX);
