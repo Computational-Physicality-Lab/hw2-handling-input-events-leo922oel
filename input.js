@@ -239,11 +239,13 @@ var Render = {
 
                 if (this.store.isDblclick) {
                     // this.target.preventDefault();
-                    document.div = this.store.div;
-                    // console.log(document.div);
-                    document.offset = {x: this.store.offsetX, y:this.store.offsetY};
-                    document.addEventListener("mousemove", this.MouseHandler);
-                    document.addEventListener("click", this.MouseHandler);
+                    if (document.div !== workspace) {
+                        document.div = this.store.div;
+                        // console.log(document.div);
+                        document.offset = {x: this.store.offsetX, y:this.store.offsetY};
+                        document.addEventListener("mousemove", this.MouseHandler);
+                        document.addEventListener("click", this.MouseHandler);
+                    }
                 } else {
                     document.removeEventListener("mousemove", this.MouseHandler);
                 }
