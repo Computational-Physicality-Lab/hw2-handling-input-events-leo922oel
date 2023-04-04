@@ -11,6 +11,7 @@ var target = document.querySelectorAll(".target");
 
 var isDrag = false;
 var isEsc = false;
+var isTouch = false;
 
 function Store() {
     this.state = 'idle';
@@ -25,6 +26,15 @@ function Store() {
 
 // touch event
     this.touchCount = 0;
+    this.currentX = null;
+    this.currentY = null;
+    this.prevX = null;
+    this.prevY = null;
+    this.last = null;
+    this.preVX = null;
+    this.preVY = null;
+    this.VX = null;
+    this.VY = null;
 }
 
 Store.prototype = {
@@ -82,7 +92,7 @@ Store.prototype = {
                 break;
             
             case 'click':
-                if (e.detail == 2) break;
+                if (e.detail == 2 || this.isDblclick) break;
                 if (isDrag) {
                     isDrag = false;
                     e.stopPropagation();
@@ -120,10 +130,23 @@ Store.prototype = {
                 break;
 
             case 'touchstart':
+                isTouch = true;
                 this.state = "touchstart";
                 console.log(this.state);
                 // e.preventDefault();
-                this.TouchsetTarget(e, e.offsetX, e.offsetY);
+                if (e.touches.length == 1) this.TouchsetTarget(e, e.offsetX, e.offsetY);
+                if (e.touches.length == 2) {
+                    this.preVX = e.touches[1].clientX - e.touches[0].clientX;
+                    this.preVY = e.touches[1].clientY - e.touches[0].clientY;
+                }
+                
+                var now = Date.now();
+                var time = now - (this.last || now);
+                this.isDblclick = (time > 0 && time < 200 && 
+                    Math.abs(this.currentX - this.prevX) < 30 &&
+                    Math.abs(this.currentY - this.prevY) < 30);
+                console.log("touch is dbl: " + this.isDblclick);
+                this.last = Date.now();
                 isDrag = false;
                 this.handlerTimer = setTimeout(this.setDrag, 100);
                 e.stopPropagation();
@@ -140,7 +163,9 @@ Store.prototype = {
                 console.log(this.state);
                 this.touchCount++;
                 console.log(this.touchCount);
-                // if (this.touchCount == 1) 
+                if (this.touchCount == 2) {
+                    this.touchCount = 0;
+                } 
                 e.stopPropagation();
                 break;
 
@@ -161,7 +186,6 @@ Store.prototype = {
         // this.target = name;
         // console.log(this.target);
         this.div = e.target;
-        // document.offset = {x: e.offsetX, y:e.offsetY};
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         this.left = e.target.style.left;
@@ -169,15 +193,17 @@ Store.prototype = {
         e.stopPropagation();
     },
     TouchsetTarget: function TouchsetTarget(e) {
-        // this.target = name;
-        // console.log(this.target);
         this.div = e.touches[0].target;
-        // document.offset = {x: e.offsetX, y:e.offsetY};
         this.left = e.touches[0].target.style.left;
         this.top = e.touches[0].target.style.top;
-        this.offsetX = e.touches[0].clientX - this.left;
-        this.offsetY = e.touches[0].clientY - this.top;
-        console.log(this.offsetX);
+        this.prevX = this.currentX;
+        this.prevY = this.currentY;
+        this.currentX = e.touches[0].clientX;
+        this.currentY = e.touches[0].clientY;
+        this.offsetX = this.currentX - parseInt(this.left, 10);
+        this.offsetY = this.currentY - parseInt(this.top, 10);
+        // this.offsetX = e.touches[0].clientX - parseInt(this.left, 10);
+        // this.offsetY = e.touches[0].clientY - parseInt(this.top, 10);
         e.stopPropagation();
     },
     setDrag: function setDrag() {
@@ -232,6 +258,18 @@ var Render = {
                     }
 
                 }
+                if (isTouch) {
+                    if (this.store.isDblclick) {
+                        // this.target.preventDefault();
+                        document.div = this.store.div;
+                        // console.log(document.div);
+                        document.offset = {x: this.store.offsetX, y:this.store.offsetY};
+                        document.addEventListener("touchmove", this.TouchHandler);
+                        document.addEventListener("touchend", this.TouchHandler);
+                    // } else {
+                        // document.removeEventListener("mousemove", this.MouseHandler);
+                    }
+                }
                 if (this.store.state === 'touchstart') {
                     document.div = this.store.div;
                     if (document.div !== workspace) {
@@ -259,6 +297,16 @@ var Render = {
     },
     TouchHandler: function TouchHandler(e) {
         if (e.type === "touchmove") {
+            if (e.touches.length === 2) {
+                // e.preventDefault();
+                vX = e.touches[1].clientX - e.touches[0].clientX;
+                vY = e.touches[1].clientY - e.touches[0].clientY;
+                if (this.store.preVX !== null) {
+                    e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.preVX, this.store.preVY);
+                    
+                }
+
+            }
             console.log("moving");
             document.div.style.left = e.touches[0].clientX - document.offset.x + "px";
             document.div.style.top = e.touches[0].clientY - document.offset.y + "px";
@@ -269,6 +317,9 @@ var Render = {
             // document.removeEventListener("mousemove", this.MouseHandler);
             // document.removeEventListener("mouseup", this.MouseHandler);
         }
+    },
+    GetLen: function GetLen(x, y) {
+        return Math.sqrt(x * x + y * y);
     }
 }
 
