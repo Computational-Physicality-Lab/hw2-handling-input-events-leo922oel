@@ -74,7 +74,8 @@ Store.prototype = {
                 e.preventDefault();
                 this.setTarget(e);
                 isDrag = false;
-                this.handlerTimer = setTimeout(this.setDrag, 200);
+                this.aa = Date.now();
+                this.handlerTimer = setTimeout(this.setDrag, 80);
                 break;
 
             case 'mousemove':
@@ -113,6 +114,7 @@ Store.prototype = {
 
             case 'mouseup':
                 this.state = 'idle';
+                console.log(Date.now() - this.aa);
                 if (!isDrag) {
                     clearTimeout(this.handlerTimer);
                     console.log("mouse up from click");
@@ -302,7 +304,6 @@ var Render = {
                             document.addEventListener("touchmove", this.TouchHandler);
 
                     } else {
-                        console.log("enter2");
                     document.div = this.store.div;
                     if (this.store.div !== workspace) {
                         document.offset = {x: this.store.offset.x, y: this.store.offset.y};
@@ -330,12 +331,12 @@ var Render = {
     },
     TouchHandler: function TouchHandler(e) {
         if (e.type === "touchmove") {
+            // console.log("x " + prevV);
             if (e.touches.length === 2) {
                 e.preventDefault();
                 console.log("scale");
                 vX = e.touches[1].pageX - e.touches[0].pageX;
                 vY = e.touches[1].pageY - e.touches[0].pageY;
-                console.log("x" + this.store.prevV.x);
                 if (this.store.prevV.x !== null) {
                     e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.prevV.x, this.store.prevV.y);
                     console.log(e.scale);
