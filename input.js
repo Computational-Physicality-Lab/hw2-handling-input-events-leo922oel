@@ -42,7 +42,7 @@ Store.prototype = {
         workspace.addEventListener('touchstart', this, false);
         // workspace.addEventListener('touchmove', this, false);
         workspace.addEventListener('touchend', this, false);
-        workspace.addEventListener('touchcancel', this, false);
+        // workspace.addEventListener('touchcancel', this, false);
         for (let id=0; id < target.length; id++) {
             target[id].addEventListener('mousedown', this, false);
             // target[id].addEventListener('mousemove', this);
@@ -51,7 +51,7 @@ Store.prototype = {
             target[id].addEventListener('dblclick', this, false);
             target[id].addEventListener('touchstart', this, false);
             target[id].addEventListener('touchend', this, false);
-            target[id].addEventListener('touchcancel', this, false);
+            // target[id].addEventListener('touchcancel', this, false);
 
         }
     },
@@ -326,9 +326,10 @@ var Render = {
                 console.log("scale");
                 vX = e.touches[1].clientX - e.touches[0].clientX;
                 vY = e.touches[1].clientY - e.touches[0].clientY;
-                if (this.store.preVX !== null) {
-                    e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.preVX, this.store.preVY);
+                if (this.store.V.x !== null) {
+                    e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
                 }
+                console.log(document.div.style.width);
                 document.div.style.width *= e.scale; 
                 console.log(document.div.style.width);
 
