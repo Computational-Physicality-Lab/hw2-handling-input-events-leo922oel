@@ -19,22 +19,17 @@ function Store() {
     this.div = null;
     this.isDblclick = false;
     this.handlerTimer = null;
-    this.offsetX = null;
-    this.offsetY = null;
-    this.left = null;
-    this.top = null;
+    this.offset = {x: null, y: null};
+    this.pos = {left: null, top: null};
 
 // touch event
     this.touchCount = 0;
-    this.currentX = null;
-    this.currentY = null;
-    this.prevX = null;
-    this.prevY = null;
+    this.current = {x: null, y: null};
+    this.prev = {x: null, y: null};
+    this.prevV = {x: null, y: null};
+    this.V = {x: null, y: null};
     this.last = null;
-    this.preVX = null;
-    this.preVY = null;
-    this.VX = null;
-    this.VY = null;
+    this.lastStart = null;
 }
 
 Store.prototype = {
@@ -79,7 +74,7 @@ Store.prototype = {
                 this.state = "mousedown";
                 console.log(this.state);
                 e.preventDefault();
-                this.setTarget(e, e.offsetX, e.offsetY);
+                this.setTarget(e);
                 isDrag = false;
                 this.handlerTimer = setTimeout(this.setDrag, 200);
                 break;
@@ -87,12 +82,12 @@ Store.prototype = {
             case 'mousemove':
                 this.state = "moving";
                 console.log(this.state);
-                document.div.style.left = e.clientX - document.offset.x + "px";
-                document.div.style.top = e.clientY - document.offset.y + "px";
+                // document.div.style.left = e.clientX - document.offset.x + "px";
+                // document.div.style.top = e.clientY - document.offset.y + "px";
                 break;
             
             case 'click':
-                if (e.detail == 2 || this.isDblclick) break;
+                if (e.detail == 2) break;
                 if (isDrag) {
                     isDrag = false;
                     e.stopPropagation();
@@ -114,6 +109,7 @@ Store.prototype = {
                 this.state = 'dblclick';
                 console.log(this.state);
                 if (this.div !== null && this.div !== workspace) this.isDblclick = true;
+                isTouch = false;
                 e.stopPropagation();
                 break;
 
@@ -130,23 +126,25 @@ Store.prototype = {
                 break;
 
             case 'touchstart':
-                isTouch = true;
                 this.state = "touchstart";
                 console.log(this.state);
-                // e.preventDefault();
-                if (e.touches.length == 1) this.TouchsetTarget(e, e.offsetX, e.offsetY);
+                e.preventDefault();
                 if (e.touches.length == 2) {
-                    this.preVX = e.touches[1].clientX - e.touches[0].clientX;
-                    this.preVY = e.touches[1].clientY - e.touches[0].clientY;
+                    this.prevV = {x: e.touches[1].pageX - e.touches[0].pageX, y: e.touches[1].pageY - e.touches[0].pageY};
+                    console.log("success pinsh");
                 }
-                
+
                 var now = Date.now();
+                this.lastStart = now;
                 var time = now - (this.last || now);
-                this.isDblclick = (time > 0 && time < 200 && 
-                    Math.abs(this.currentX - this.prevX) < 30 &&
-                    Math.abs(this.currentY - this.prevY) < 30);
-                console.log("touch is dbl: " + this.isDblclick);
+                if (!this.isDblclick) this.TouchsetTarget(e);
+                // this.current = {x: e.changedTouches[0].pageX, y: e.changedTouches[0].pageY};
+                this.candi = (time > 0 && time < 200 && 
+                    Math.abs(this.current.x - this.prev.x) < 30 &&
+                    Math.abs(this.current.y - this.prev.y) < 30);
                 this.last = Date.now();
+                this.prev = this.current;
+
                 isDrag = false;
                 this.handlerTimer = setTimeout(this.setDrag, 100);
                 e.stopPropagation();
@@ -161,11 +159,25 @@ Store.prototype = {
             case 'touchend':
                 this.state = "touchend";
                 console.log(this.state);
+                var Point = {x: e.changedTouches[0].pageX, y: e.changedTouches[0].pageY};
                 this.touchCount++;
                 console.log(this.touchCount);
-                if (this.touchCount == 2) {
+                var now = Date.now();
+                var time = now - (this.lastStart || now);
+                this.isDblclick = (this.candi || (!this.candi && this.isDblclick && time > 100));
+                console.log("dbl: " + this.isDblclick);
+                
+                if (this.isDblclick) {
                     this.touchCount = 0;
-                } 
+                    this.prev = {x: null, y: null};
+                    this.DblTap(e);
+                    isTouch = true;
+                } else {
+                    if (Math.abs(Point.x - this.current.x) < 10 && Math.abs(Point.y - this.current.y) < 10) {
+                        this.Tap(e);
+                    }
+                }
+
                 e.stopPropagation();
                 break;
 
@@ -182,29 +194,42 @@ Store.prototype = {
         }
         window.dispatchEvent(new Event('render_view'));
     },
-    setTarget: function setTarget(e, offsetX, offsetY) {
+    setTarget: function setTarget(e) {
         // this.target = name;
         // console.log(this.target);
         this.div = e.target;
-        this.offsetX = offsetX;
-        this.offsetY = offsetY;
-        this.left = e.target.style.left;
-        this.top = e.target.style.top;
+        this.offset = {x: e.offsetX, y: e.offsetY};
+        this.pos = {left: e.target.style.left, top: e.target.style.top};
         e.stopPropagation();
     },
     TouchsetTarget: function TouchsetTarget(e) {
-        this.div = e.touches[0].target;
-        this.left = e.touches[0].target.style.left;
-        this.top = e.touches[0].target.style.top;
-        this.prevX = this.currentX;
-        this.prevY = this.currentY;
-        this.currentX = e.touches[0].clientX;
-        this.currentY = e.touches[0].clientY;
-        this.offsetX = this.currentX - parseInt(this.left, 10);
-        this.offsetY = this.currentY - parseInt(this.top, 10);
-        // this.offsetX = e.touches[0].clientX - parseInt(this.left, 10);
-        // this.offsetY = e.touches[0].clientY - parseInt(this.top, 10);
+        touch = e.changedTouches[0];
+        this.div = touch.target;
+        this.pos = {left: (this.div.style.left || 0), top: (this.div.style.top || 0)};
+        this.current = {x: touch.pageX, y: touch.pageY};
+        this.offset = {x: this.current.x - parseInt(this.pos.left, 10), y: this.current.y - parseInt(this.pos.top, 10)};
         e.stopPropagation();
+    },
+    Tap: function Tap(e) {
+        if (isDrag) {
+            isDrag = false;
+            return;
+        }
+        if (this.pretarget) {
+            this.target = this.pretarget;
+            this.pretarget = null
+        }
+        this.state = 'tap';
+        this.target = e.changedTouches[0].target;
+        console.log(this.state);
+        if (this.isDblclick) {
+            this.target = workspace;
+            this.isDblclick = false;
+        } 
+    },
+    DblTap: function DblTap(e) {
+        this.state = 'dbltap';
+        console.log(this.state);
     },
     setDrag: function setDrag() {
         isDrag = true;
@@ -222,8 +247,8 @@ var Render = {
         switch (e.type) {
             case 'render_view':
                 if (isEsc) {
-                    document.div.style.left = this.store.left;
-                    document.div.style.top = this.store.top;
+                    document.div.style.left = this.store.pos.left;
+                    document.div.style.top = this.store.pos.top;
                     this.store.div = null;
                     document.removeEventListener("mousemove", this.MouseHandler);
                     document.removeEventListener("mouseup", this.MouseHandler);
@@ -236,53 +261,48 @@ var Render = {
                         this.target = target[id];
                     }
                 }
-
-                if (this.store.isDblclick) {
+                if (!isTouch && this.store.isDblclick) {
                     // this.target.preventDefault();
+                    document.div = this.store.div;
                     if (document.div !== workspace) {
-                        document.div = this.store.div;
                         // console.log(document.div);
-                        document.offset = {x: this.store.offsetX, y:this.store.offsetY};
+                        document.offset = {x: this.store.offset.x, y:this.store.offset.y};
                         document.addEventListener("mousemove", this.MouseHandler);
                         document.addEventListener("click", this.MouseHandler);
                     }
                 } else {
                     document.removeEventListener("mousemove", this.MouseHandler);
+                    // document.removeEventListener("touchmove", this.TouchHandler);
                 }
-                // console.log("drag: " + isDrag);
                 if (this.store.state === 'mousedown') {
                     document.div = this.store.div;
                     if (document.div !== workspace) {
                         // console.log(document.div);
-                        document.offset = {x: this.store.offsetX, y:this.store.offsetY};
+                        document.offset = {x: this.store.offset.x, y: this.store.offset.y};
                         document.addEventListener("mousemove", this.MouseHandler);
                         document.addEventListener("mouseup", this.MouseHandler);
                     }
 
                 }
-                if (isTouch) {
-                    if (this.store.isDblclick) {
-                        // this.target.preventDefault();
-                        document.div = this.store.div;
-                        if (document.div !== workspace) {
-                            // console.log(document.div);
-                            document.offset = {x: this.store.offsetX, y:this.store.offsetY};
-                            document.addEventListener("touchmove", this.TouchHandler);
-                            document.addEventListener("touchend", this.TouchHandler);
-                        // } else {
-                            // document.removeEventListener("mousemove", this.MouseHandler);
-                        }
-                    }
-                }
                 if (this.store.state === 'touchstart') {
+                    if (this.store.isDblclick) {
+                        // if (this.store.div !== workspace) {
+                        // document.div = this.store.div;
+                        // }
+                            document.offset = {x: this.store.offset.x, y: this.store.offset.y};
+                            document.addEventListener("touchmove", this.TouchHandler);
+
+                    } else {
+                        console.log("enter2");
                     document.div = this.store.div;
-                    if (document.div !== workspace) {
-                        // console.log(document.div);
-                        document.offset = {x: this.store.offsetX, y:this.store.offsetY};
+                    if (this.store.div !== workspace) {
+                        document.offset = {x: this.store.offset.x, y: this.store.offset.y};
                         document.addEventListener("touchmove", this.TouchHandler);
-                        document.addEventListener("touchend", this.TouchHandler);
                     }
 
+                    }
+                } else {
+                    document.removeEventListener("touchmove", this.TouchHandler);
                 }
         }
     },
@@ -313,15 +333,17 @@ var Render = {
                 console.log(document.div.style.width);
 
             }
-            console.log("moving");
-            document.div.style.left = e.touches[0].clientX - document.offset.x + "px";
-            document.div.style.top = e.touches[0].clientY - document.offset.y + "px";
-        // } else if (e.type === "mouseup") {
-            // console.log("enter this");
+            else {
+                console.log("moving when touch");
+                document.div.style.left = e.touches[0].pageX - document.offset.x + "px";
+                document.div.style.top = e.touches[0].pageY - document.offset.y + "px";
+            }
+        } else if (e.type === "touchend") {
+            console.log("enter this");
             // console.log(this.store.offsetX);
             // console.log(this.store.offsetY);
-            // document.removeEventListener("mousemove", this.MouseHandler);
-            // document.removeEventListener("mouseup", this.MouseHandler);
+            document.removeEventListener("touchmove", this.TouchHandler);
+            document.removeEventListener("touchend", this.TouchHandler);
         }
     },
     GetLen: function GetLen(x, y) {
