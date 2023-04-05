@@ -336,8 +336,8 @@ var Render = {
                 console.log("scale");
                 vX = e.touches[1].pageX - e.touches[0].pageX;
                 vY = e.touches[1].pageY - e.touches[0].pageY;
-                if (this.store.V.x !== null) {
-                    e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
+                if (this.store.prevV.x !== null) {
+                    e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.prevV.x, this.store.prevV.y);
                     console.log(e.scale);
                     console.log(document.div.style.width);
                 }
