@@ -50,6 +50,7 @@ Store.prototype = {
             target[id].addEventListener('click', this, false);
             target[id].addEventListener('dblclick', this, false);
             target[id].addEventListener('touchstart', this, false);
+            target[id].addEventListener('touchmove', this, false);
             target[id].addEventListener('touchend', this, false);
             // target[id].addEventListener('touchcancel', this, false);
 
@@ -151,9 +152,18 @@ Store.prototype = {
                 break;
 
             case 'touchmove':
-                this.state = "touchmove";
-                console.log(isDrag);
-                e.stopPropagation();
+                e.preventDefault();
+                if (e.touches.length === 2) {
+                    console.log("scale");
+                    vX = e.touches[1].pageX - e.touches[0].pageX;
+                    vY = e.touches[1].pageY - e.touches[0].pageY;
+                    if (this.store.V.x !== null) {
+                        e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
+                        console.log(document.div.style.width);
+                        document.div.style.width *= e.scale; 
+                        console.log(document.div.style.width);
+                    }
+                }
                 break;
 
             case 'touchend':
