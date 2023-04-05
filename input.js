@@ -336,6 +336,7 @@ var Render = {
                 console.log("scale");
                 vX = e.touches[1].pageX - e.touches[0].pageX;
                 vY = e.touches[1].pageY - e.touches[0].pageY;
+                console.log(this.store.prevV.x);
                 if (this.store.prevV.x !== null) {
                     e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.prevV.x, this.store.prevV.y);
                     console.log(e.scale);
@@ -349,7 +350,6 @@ var Render = {
                 document.div.style.top = e.touches[0].pageY - document.offset.y + "px";
             }
         } else if (e.type === "touchend") {
-            console.log("enter this");
             // console.log(this.store.offsetX);
             // console.log(this.store.offsetY);
             document.removeEventListener("touchmove", this.TouchHandler);
