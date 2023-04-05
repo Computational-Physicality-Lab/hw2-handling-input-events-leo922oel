@@ -170,15 +170,12 @@ Store.prototype = {
                 this.state = "touchend";
                 console.log(this.state);
                 var Point = {x: e.changedTouches[0].pageX, y: e.changedTouches[0].pageY};
-                this.touchCount++;
-                console.log(this.touchCount);
                 var now = Date.now();
                 var time = now - (this.lastStart || now);
                 this.isDblclick = (this.candi || (!this.candi && this.isDblclick && time > 100));
                 console.log("dbl: " + this.isDblclick);
                 
                 if (this.isDblclick) {
-                    this.touchCount = 0;
                     this.prev = {x: null, y: null};
                     this.DblTap(e);
                     isTouch = true;
@@ -337,6 +334,8 @@ var Render = {
                 console.log("scale");
                 vX = e.touches[1].pageX - e.touches[0].pageX;
                 vY = e.touches[1].pageY - e.touches[0].pageY;
+                console.log(vX);
+                console.log(vY);
                 console.log(this.store.prevV.x);
                 if (this.store.prevV.x !== null) {
                     e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.prevV.x, this.store.prevV.y);
