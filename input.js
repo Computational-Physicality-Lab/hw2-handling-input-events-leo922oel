@@ -129,7 +129,8 @@ Store.prototype = {
                 e.preventDefault();
                 if (e.touches.length == 2) {
                     this.prevV = {x: e.touches[1].pageX - e.touches[0].pageX, y: e.touches[1].pageY - e.touches[0].pageY};
-                    console.log(this.prevV);
+                    console.log(this.prevV.x);
+                    console.log(this.prevV.y);
                     console.log("success pinsh");
                 }
 
@@ -334,9 +335,7 @@ var Render = {
                 console.log("scale");
                 vX = e.touches[1].pageX - e.touches[0].pageX;
                 vY = e.touches[1].pageY - e.touches[0].pageY;
-                console.log(vX);
-                console.log(vY);
-                console.log(this.store.prevV.x);
+                console.log("x" + this.store.prevV.x);
                 if (this.store.prevV.x !== null) {
                     e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.prevV.x, this.store.prevV.y);
                     console.log(e.scale);
