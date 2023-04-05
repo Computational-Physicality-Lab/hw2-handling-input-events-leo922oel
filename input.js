@@ -322,16 +322,16 @@ var Render = {
     TouchHandler: function TouchHandler(e) {
         if (e.type === "touchmove") {
             if (e.touches.length === 2) {
-                // e.preventDefault();
+                e.preventDefault();
                 console.log("scale");
-                vX = e.touches[1].clientX - e.touches[0].clientX;
-                vY = e.touches[1].clientY - e.touches[0].clientY;
+                vX = e.touches[1].pageX - e.touches[0].pageX;
+                vY = e.touches[1].pageY - e.touches[0].pageY;
                 if (this.store.V.x !== null) {
                     e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
+                    console.log(document.div.style.width);
+                    document.div.style.width *= e.scale; 
+                    console.log(document.div.style.width);
                 }
-                console.log(document.div.style.width);
-                document.div.style.width *= e.scale; 
-                console.log(document.div.style.width);
 
             }
             else {
