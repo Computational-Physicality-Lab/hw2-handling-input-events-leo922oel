@@ -42,17 +42,14 @@ Store.prototype = {
         workspace.addEventListener('touchstart', this, false);
         // workspace.addEventListener('touchmove', this, false);
         workspace.addEventListener('touchend', this, false);
-        // workspace.addEventListener('touchcancel', this, false);
         for (let id=0; id < target.length; id++) {
             target[id].addEventListener('mousedown', this, false);
-            // target[id].addEventListener('mousemove', this);
             target[id].addEventListener('mouseup', this, false);
             target[id].addEventListener('click', this, false);
             target[id].addEventListener('dblclick', this, false);
             target[id].addEventListener('touchstart', this, false);
-            target[id].addEventListener('touchmove', this, false);
+            // target[id].addEventListener('touchmove', this, false);
             target[id].addEventListener('touchend', this, false);
-            // target[id].addEventListener('touchcancel', this, false);
 
         }
     },
@@ -157,6 +154,7 @@ Store.prototype = {
                     console.log("store scale");
                     vX = e.touches[1].pageX - e.touches[0].pageX;
                     vY = e.touches[1].pageY - e.touches[0].pageY;
+                    console.log("vX" + vX);
                     if (this.V.x !== null) {
                         this.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
                         console.log("scale" + this.scale);
@@ -267,7 +265,7 @@ var Render = {
                 }
                 for (let id=0; id < target.length; id++) {
                     target[id].style.backgroundColor = 'red';
-                    target[id].style.width = target[id].style.width * this.store.scale;
+                    // target[id].style.width = target[id].style.width * this.store.scale;
                     if (target[id] == this.store.target) {
                         target[id].style.backgroundColor = 'blue';
                         this.target = target[id];
@@ -334,16 +332,15 @@ var Render = {
     TouchHandler: function TouchHandler(e) {
         if (e.type === "touchmove") {
             if (e.touches.length === 2) {
-                // e.preventDefault();
-                // console.log("scale");
-                // vX = e.touches[1].pageX - e.touches[0].pageX;
-                // vY = e.touches[1].pageY - e.touches[0].pageY;
-                // if (this.store.V.x !== null) {
-                    // e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
-                    // console.log(document.div.style.width);
-                    // document.div.style.width *= e.scale; 
-                    // console.log(document.div.style.width);
-                // }
+                e.preventDefault();
+                console.log("scale");
+                vX = e.touches[1].pageX - e.touches[0].pageX;
+                vY = e.touches[1].pageY - e.touches[0].pageY;
+                if (this.store.V.x !== null) {
+                    e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
+                    console.log(e.scale);
+                    console.log(document.div.style.width);
+                }
 
             }
             else {
