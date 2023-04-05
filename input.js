@@ -157,7 +157,6 @@ Store.prototype = {
                     console.log("store scale");
                     vX = e.touches[1].pageX - e.touches[0].pageX;
                     vY = e.touches[1].pageY - e.touches[0].pageY;
-                    console.log("vX" + vX);
                     if (this.V.x !== null) {
                         this.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
                         console.log("scale" + this.scale);
