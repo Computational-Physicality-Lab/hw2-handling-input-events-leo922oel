@@ -6,6 +6,9 @@ r11946013
 
 簡立誠 (Li-Cheng Chien)
 
+## Deploy URL
+[https://curious-rabanadas-00f4ec.netlify.app](https://curious-rabanadas-00f4ec.netlify.app)
+
 ## implemented Objects
 * mouse-click
 * mouse down
