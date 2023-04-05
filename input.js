@@ -149,23 +149,22 @@ Store.prototype = {
 
                 isDrag = false;
                 this.handlerTimer = setTimeout(this.setDrag, 100);
+
+                if (e.touches.length > 1) {
+                    console.log("esc");
+                    this.state = "idle";
+                    if (!this.store.isDblclick) this.pretarget = this.target;
+                    // this.target = 'workspace';
+                    this.isDblclick = false;
+                    this.handlerTimer = null;
+                    isDrag = false;
+                    isEsc = true;
+                }
                 e.stopPropagation();
                 break;
 
             case 'touchmove':
-                e.preventDefault();
-                if (e.touches.length === 2) {
-                    console.log("store scale");
-                    vX = e.touches[1].pageX - e.touches[0].pageX;
-                    vY = e.touches[1].pageY - e.touches[0].pageY;
-                    console.log("vX" + vX);
-                    if (this.V.x !== null) {
-                        this.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
-                        console.log("scale" + this.scale);
-                        // document.div.style.width *= e.scale; 
-                        // console.log(document.div.style.width);
-                    }
-                }
+                console.log("store move");
                 e.stopPropagation();
                 break;
 
