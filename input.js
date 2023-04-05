@@ -114,7 +114,6 @@ Store.prototype = {
 
             case 'mouseup':
                 this.state = 'idle';
-                console.log(Date.now() - this.aa);
                 if (!isDrag) {
                     clearTimeout(this.handlerTimer);
                     console.log("mouse up from click");
@@ -131,7 +130,9 @@ Store.prototype = {
                 e.preventDefault();
                 if (e.touches.length == 2) {
                     this.prevV = {x: e.touches[1].pageX - e.touches[0].pageX, y: e.touches[1].pageY - e.touches[0].pageY};
-                    console.log("success pinch");
+                    console.log(this.prevV.x);
+                    console.log(this.prevV.y);
+                    console.log("success pinsh");
                 }
 
                 var now = Date.now();
@@ -147,13 +148,10 @@ Store.prototype = {
 
                 isDrag = false;
                 this.handlerTimer = setTimeout(this.setDrag, 100);
-
                 e.stopPropagation();
                 break;
 
             case 'touchmove':
-                console.log("store move");
-                e.stopPropagation();
                 break;
 
             case 'touchend':
@@ -293,10 +291,6 @@ var Render = {
                     } else {
                     document.div = this.store.div;
                     if (this.store.div !== workspace) {
-                        if (e.touches.length == 2) {
-                            this.prevV = {x: e.touches[1].pageX - e.touches[0].pageX, y: e.touches[1].pageY - e.touches[0].pageY};
-                            console.log("success pinch");
-                        }
                         document.offset = {x: this.store.offset.x, y: this.store.offset.y};
                         document.addEventListener("touchmove", this.TouchHandler);
                     }
@@ -322,16 +316,15 @@ var Render = {
     },
     TouchHandler: function TouchHandler(e) {
         if (e.type === "touchmove") {
-            console.log("x " + this.prevV.x);
+            // console.log("x " + prevV);
             if (e.touches.length === 2) {
                 e.preventDefault();
                 console.log("scale");
                 vX = e.touches[1].pageX - e.touches[0].pageX;
                 vY = e.touches[1].pageY - e.touches[0].pageY;
-                if (this.prevV.x !== null) {
-                    e.scale = this.GetLen(vX, vY) / this.GetLen(this.prevV.x, this.prevV.y);
+                if (this.store.prevV.x !== null) {
+                    e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.prevV.x, this.store.prevV.y);
                     console.log(e.scale);
-                    document.div.style.width *= e.scale;
                     console.log(document.div.style.width);
                 }
 
