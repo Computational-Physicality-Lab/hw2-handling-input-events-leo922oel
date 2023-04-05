@@ -154,14 +154,14 @@ Store.prototype = {
             case 'touchmove':
                 e.preventDefault();
                 if (e.touches.length === 2) {
-                    console.log("scale");
+                    console.log("store scale");
                     vX = e.touches[1].pageX - e.touches[0].pageX;
                     vY = e.touches[1].pageY - e.touches[0].pageY;
                     if (this.store.V.x !== null) {
-                        e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
-                        console.log(document.div.style.width);
-                        document.div.style.width *= e.scale; 
-                        console.log(document.div.style.width);
+                        this.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
+                        // console.log(document.div.style.width);
+                        // document.div.style.width *= e.scale; 
+                        // console.log(document.div.style.width);
                     }
                 }
                 break;
@@ -266,6 +266,7 @@ var Render = {
                 }
                 for (let id=0; id < target.length; id++) {
                     target[id].style.backgroundColor = 'red';
+                    target[id].style.width = target[id].style.width * this.store.scale;
                     if (target[id] == this.store.target) {
                         target[id].style.backgroundColor = 'blue';
                         this.target = target[id];
