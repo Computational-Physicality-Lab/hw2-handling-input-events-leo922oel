@@ -129,6 +129,7 @@ Store.prototype = {
                 e.preventDefault();
                 if (e.touches.length == 2) {
                     this.prevV = {x: e.touches[1].pageX - e.touches[0].pageX, y: e.touches[1].pageY - e.touches[0].pageY};
+                    console.log(this.prevV);
                     console.log("success pinsh");
                 }
 
