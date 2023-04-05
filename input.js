@@ -159,7 +159,7 @@ Store.prototype = {
                     vY = e.touches[1].pageY - e.touches[0].pageY;
                     if (this.store.V.x !== null) {
                         this.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
-                        // console.log(document.div.style.width);
+                        console.log("scale" + this.scale);
                         // document.div.style.width *= e.scale; 
                         // console.log(document.div.style.width);
                     }
