@@ -157,13 +157,15 @@ Store.prototype = {
                     console.log("store scale");
                     vX = e.touches[1].pageX - e.touches[0].pageX;
                     vY = e.touches[1].pageY - e.touches[0].pageY;
-                    if (this.store.V.x !== null) {
+                    console.log("vX" + vX);
+                    if (this.V.x !== null) {
                         this.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
                         console.log("scale" + this.scale);
                         // document.div.style.width *= e.scale; 
                         // console.log(document.div.style.width);
                     }
                 }
+                e.stopPropagation();
                 break;
 
             case 'touchend':
@@ -333,16 +335,16 @@ var Render = {
     TouchHandler: function TouchHandler(e) {
         if (e.type === "touchmove") {
             if (e.touches.length === 2) {
-                e.preventDefault();
-                console.log("scale");
-                vX = e.touches[1].pageX - e.touches[0].pageX;
-                vY = e.touches[1].pageY - e.touches[0].pageY;
-                if (this.store.V.x !== null) {
-                    e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
-                    console.log(document.div.style.width);
-                    document.div.style.width *= e.scale; 
-                    console.log(document.div.style.width);
-                }
+                // e.preventDefault();
+                // console.log("scale");
+                // vX = e.touches[1].pageX - e.touches[0].pageX;
+                // vY = e.touches[1].pageY - e.touches[0].pageY;
+                // if (this.store.V.x !== null) {
+                    // e.scale = this.GetLen(vX, vY) / this.GetLen(this.store.V.x, this.store.V.y);
+                    // console.log(document.div.style.width);
+                    // document.div.style.width *= e.scale; 
+                    // console.log(document.div.style.width);
+                // }
 
             }
             else {
